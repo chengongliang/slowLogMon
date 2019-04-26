@@ -1,0 +1,21 @@
+mysql:
+  host: ''
+  port: 3306
+  username: root
+  passwd: ''
+  db: test_db
+  store: false  # 是否存入数据库
+redis:
+  host: ''
+  port: 6379
+  key: mysql-slow-log
+dingTalk:
+  token: 'xxxxxxx'
+other:
+  alert_interval: 3 # 报警间隔时间
+  check_interval: 5 # 检查间隔时间
+  query_time: 1     # 执行时间报警阈值
+  portRegex: '[\s\S]*(33\d+)[\s\S]*' # 端口正则: /u01/mysql/3306/log/slow/mysql-slow.log
+white_ip:
+  stat: 1 # 0 关闭，1 打开
+  ip: '127.0.0.1,localhost'
