@@ -74,6 +74,21 @@ func sendDingTalk(message, token string) {
 	fmt.Println(time.Now().Format("2006-01-02 15:04:05"), string(body))
 }
 
+func alert(alertInterval int64, token string, msgChan <-chan string) {
+	var oneMsg string
+	for {
+		select {
+		case <-time.After(time.Duration(alertInterval) * time.Second):
+			if oneMsg != "" {
+				sendDingTalk(oneMsg, token)
+				oneMsg = ""
+			}
+		case msg := <-msgChan:
+			oneMsg += msg
+		}
+	}
+}
+
 func main() {
 	fmt.Println(time.Now().Format("2006-01-02 15:04:05"), "start monitor")
 	v := viper.New()
@@ -108,20 +123,7 @@ SET timestamp=(\d+);
 	ticker := time.Tick(time.Duration(checkInterval) * time.Second)
 
 	var msgChan = make(chan string, 5)
-	go func() {
-		var oneMsg string
-		for {
-			select {
-			case msg := <-msgChan:
-				oneMsg += msg
-			case <-time.After(time.Duration(alertInterval) * time.Second):
-				if oneMsg != "" {
-					sendDingTalk(oneMsg, token)
-					oneMsg = ""
-				}
-			}
-		}
-	}()
+	go alert(alertInterval, token, msgChan)
 	for {
 		select {
 		case <-ticker:
@@ -184,16 +186,16 @@ SET timestamp=(\d+);
 					alertFlag = false
 					s.Stat = 2
 				}
-				fmt.Println(s.QueryTime, alertFlag)
+				if storeFlag {
+					if err := db.Create(&s).Error; err != nil {
+						fmt.Println(t, err)
+					}
+				}
+				// fmt.Println(s.QueryTime, alertFlag)
 				if s.QueryTime > qTime && alertFlag {
 					msg := fmt.Sprintf("# <font face=\"微软雅黑\">慢SQL通知</font>\n\n<br/>\n**地址:** %v\n\n<br/>**DB:** %v\n\n<br/>**来源IP:** %v\n\n<br/>**SQL 时间:** %v\n\n<br/>**执行时间:** %v\n\n<br/>**执行内容:**\n\n<br/>```%v```\n\n<br/>",
 						s.Target, s.Database, s.IP, s.Time, s.QueryTime, s.Sql)
 					msgChan <- msg
-					if storeFlag {
-						if err := db.Create(&s).Error; err != nil {
-							fmt.Println(t, err)
-						}
-					}
 				}
 			}
 		}
