@@ -174,7 +174,7 @@ SET timestamp=(\d+);
 				qTime := v.GetFloat64("other.query_time")
 				port := "3306"
 				portMatch := portRegex.FindStringSubmatch(slowLog.Source)
-				if len(port) == 2 {
+				if len(portMatch) == 2 {
 					port = portMatch[1]
 				}
 				s.Target = slowLog.Host + ":" + port
