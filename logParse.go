@@ -111,7 +111,7 @@ func main() {
 	defer db.Close()
 	sqlRegex := regexp.MustCompile(`\bUser@Host: \S+\[(\w+)\]\s+@\s+\[(\d.*)\][\s\S]*
 # Schema: (\w+)[\s\S]*
-# Query_time: (\d.\d+)\s+Lock_time: (\d.\d+)\s+Rows_sent: (\d+)\s+Rows_examined: (\d+)\s+Rows_affected: (\d+)[\s\S]*
+# Query_time: (\d+.\d+)\s+Lock_time: (\d+.\d+)\s+Rows_sent: (\d+)\s+Rows_examined: (\d+)\s+Rows_affected: (\d+)[\s\S]*
 # Bytes_sent: (\d+)[\s\S]*
 SET timestamp=(\d+);
 ([\s\S;]*)`)
